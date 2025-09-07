@@ -33,7 +33,8 @@ function FormField<T extends FieldValues>({
             className="input"
             type={type} 
             placeholder={placeholder} 
-            {...field} />
+            {...field} 
+            />
           </FormControl>
           
           <FormMessage />
