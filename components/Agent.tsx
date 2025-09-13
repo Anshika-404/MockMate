@@ -1,28 +1,120 @@
-import React from 'react'
+'use client'
+
+import React, { use } from 'react'
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { vapi } from '@/lib/vapi.sdk';
+import { createInterview } from "@/lib/actions/auth.action";
+
+
 
 enum CallStatus {
     INACTIVE = 'INACTIVE',
-    CONNECTING ='CONNECTING',
-    ACTIVE ='ACTIVE',
+    CONNECTING = 'CONNECTING',
+    ACTIVE = 'ACTIVE',
     FINISHED = 'FINISHED',
 }
 
-interface AgentProps {
+type AgentProps = {
     userName: string;
+    userId: string;
+    type: string;
+    role: string;
+    level: string;
+    techstack: string[];
+};
+
+
+interface SavedMessage {
+    role: 'user' | 'system' | 'assistant';
+    content: string;
 }
 
-const Agent = ({ userName }: AgentProps) => {
-    const callStatus = CallStatus.FINISHED;
-    const isSpeaking = true;
-    const messages = [
-        'Whats your name?',
-        'My name is Lisa, nice to meet you!'
-    ];
-    const lastMessage = messages[messages.length -1];
+const Agent = ({ userName, userId, type, role, level, techstack }: AgentProps) => {
+    const router = useRouter();
+    const [isSpeaking, setIsSpeaking] = React.useState(false);
+    const [callStatus, setCallStatus] = React.useState<CallStatus>(CallStatus.INACTIVE);
+    const [messages, setMessages] = React.useState<SavedMessage[]>([]);
 
 
+
+    useEffect(() => {
+        const onCallStart = () => setCallStatus(CallStatus.ACTIVE);
+        const onCallEnd = () => setCallStatus(CallStatus.FINISHED);
+
+        const onMessage = (message: Message) => {
+            if (message.type === 'transcript' && message.transcriptType === 'final') {
+                const newMessage = { role: message.role, content: message.transcript }
+
+                setMessages((prev) => [...prev, newMessage]);
+            }
+        }
+
+        const onSpeechStart = () => setIsSpeaking(true);
+        const onSpeechEnd = () => setIsSpeaking(false);
+
+        const onError = (error: Error) => console.log('Error', error);
+
+        vapi.on('call-start', onCallStart);
+        vapi.on('call-end', onCallEnd);
+        vapi.on('message', onMessage);
+        vapi.on('speech-start', onSpeechStart);
+        vapi.on('speech-end', onSpeechEnd);
+        vapi.on('error', onError);
+
+        return () => {
+            vapi.off('call-start', onCallStart);
+            vapi.off('call-end', onCallEnd);
+            vapi.off('message', onMessage);
+            vapi.off('speech-start', onSpeechStart);
+            vapi.off('speech-end', onSpeechEnd);
+            vapi.off('error', onError);
+        }
+    }, [])
+
+    useEffect(() => {
+        if (callStatus === CallStatus.FINISHED) router.push('/');
+    }, [messages, callStatus, type, userId]);
+
+    const handleCall = async () => {
+        setCallStatus(CallStatus.CONNECTING);
+
+        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+            variableValues: {
+                username: userName,
+                userid: userId,
+
+            }
+        })
+    }
+
+    const handleDisconnect = async () => {
+        setCallStatus(CallStatus.FINISHED);
+        vapi.stop();
+
+        try {
+            await createInterview({
+                userId,
+                type,
+                role,
+                level,
+                techstack,
+                questions: [], // placeholder
+                transcript: messages,
+                finalized: true,
+                feedback: "Interview ended. Feedback will be generated later.",
+            });
+        } catch (error) {
+            console.error("Failed to save interview:", error);
+        }
+    };
+
+
+    const latestMessage = messages[messages.length - 1]?.content;
+    const isCallInactiveOrFinished = callStatus === CallStatus.INACTIVE || callStatus ===
+        CallStatus.FINISHED;
 
     return (
 
@@ -32,7 +124,7 @@ const Agent = ({ userName }: AgentProps) => {
                     <div className="avatar">
                         <Image src="/ai-avatar.png" alt="vapi"
                             width={65} height={54} className="object-cover" />
-                        {isSpeaking && <span className="animate-speak"/>}
+                        {isSpeaking && <span className="animate-speak" />}
 
                     </div>
                     <h3>AI interviewer</h3>
@@ -47,36 +139,35 @@ const Agent = ({ userName }: AgentProps) => {
                     </div>
                 </div>
             </div>
-               {messages.length > 0 && (
+            {messages.length > 0 && (
                 <div className="transcript-border">
                     <div className="transcript">
-                        <p key={lastMessage} className={cn
+                        <p key={latestMessage} className={cn
                             ('transition-opacity duration-500 opacity-0', 'animate-fadeIn opacity-100')} >
-                            {lastMessage}
+                            {latestMessage}
                         </p>
                     </div>
                 </div>
-               )}
+            )}
 
-              <div className="w-full flex justify-center">
-                  {callStatus !== 'ACTIVE' ? (
-                       <button className="relative btn-call">
-                        <span className={cn('absolute animate-ping rounded-full opacity-75', 
-                            callStatus === 'CONNECTING' & 'hidden' )} />
+            <div className="w-full flex justify-center">
+                {callStatus !== 'ACTIVE' ? (
+                    <button className="relative btn-call" onClick={handleCall}>
+                        <span className={cn('absolute animate-ping rounded-full opacity-75',
+                            callStatus === 'CONNECTING' && 'hidden')} />
                         <span>
-                            {callStatus === 'INACTIVE' || callStatus === 'FINISHED' ? 'Call' : '...'}
-                            
+                            {isCallInactiveOrFinished ? 'Call' : '...'}
+
                         </span>
-                       </button>
-                  ): (
-                    <button className="btn-disconnect">
+                    </button>
+                ) : (
+                    <button className="btn-disconnect" onClick={handleDisconnect}>
                         End
                     </button>
-                  )}
-              </div>
+                )}
+            </div>
 
         </>
     )
 }
-
 export default Agent

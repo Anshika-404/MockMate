@@ -15,15 +15,22 @@ interface Feedback {
 
 interface Interview {
   id: string;
+  userId: string;
+
   role: string;
   level: string;
-  questions: string[];
+  type: string; 
   techstack: string[];
-  createdAt: string;
-  userId: string;
-  type: string;
+
+  questions: string[];   
+  transcript: { role: string; content: string }[]; 
+
   finalized: boolean;
+  feedback?: string; 
+
+  createdAt: string;
 }
+
 
 interface CreateFeedbackParams {
   interviewId: string;

@@ -3,6 +3,9 @@
 import { auth, db } from "@/firebase/admin";
 import { cookies } from "next/headers";
 
+// Add missing type imports or definitions
+import type { SignUpParams, SignInParams, User, Interview, GetLatestInterviewsParams } from "@/types/index";
+
 // Session duration (1 week)
 const SESSION_DURATION = 60 * 60 * 24 * 7;
 
@@ -129,3 +132,52 @@ export async function isAuthenticated() {
   const user = await getCurrentUser();
   return !!user;
 }
+
+export async function getInterviewsByUserId(userId: string): Promise<Interview[] | null> {
+  const interviewsSnapshot = await db
+    .collection("interviews")
+    .where('userId', '==', userId)
+    .orderBy('createdAt', 'desc')
+    .get();
+
+  if (interviewsSnapshot.empty) return null;
+
+  return interviewsSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  })) as Interview[];
+}
+
+export async function getLatestInterviews(params: GetLatestInterviewsParams): Promise<Interview[] | null> {
+  const { userId, limit = 20 } = params;
+
+  let query = db
+    .collection("interviews")
+    .orderBy('createdAt', 'desc')
+    .where('finalized', '==', true);
+
+  if (userId) {
+    query = query.where('userId', '==', userId);
+  }
+
+  const interviewsSnapshot = await query.limit(limit).get();
+
+  if (interviewsSnapshot.empty) return null;
+
+  return interviewsSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  })) as Interview[];
+}
+
+export async function createInterview(
+  interview: Omit<Interview, "id" | "createdAt"> & { createdAt?: any }
+) {
+  const docRef = await db.collection("interviews").add({
+    ...interview,
+    createdAt: new Date().toISOString(), 
+  });
+
+  return docRef.id;
+}
+
