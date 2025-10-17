@@ -1,14 +1,38 @@
 "use server";
 
-import { auth, db } from "@/firebase/admin";
+import { auth as firebaseAuth, db } from "@/firebase/admin";
 import { cookies } from "next/headers";
 import admin from "firebase-admin";
+
 
 // Add missing type imports or definitions
 import type { SignUpParams, SignInParams, User, Interview, GetLatestInterviewsParams } from "@/types/index";
 
 // Session duration (1 week)
 const SESSION_DURATION = 60 * 60 * 24 * 7;
+
+
+export async function auth(): Promise<User | null> {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session")?.value;
+
+  if (!sessionCookie) return null;
+
+  try {
+    const decodedClaims = await firebaseAuth.verifySessionCookie(sessionCookie, true);
+
+    const userDoc = await db.collection("users").doc(decodedClaims.uid).get();
+    if (!userDoc.exists) return null;
+
+    return {
+      id: userDoc.id,
+      ...userDoc.data(),
+    } as User;
+  } catch (err) {
+    console.error("Failed to get current user", err);
+    return null;
+  }
+}
 
 
 
