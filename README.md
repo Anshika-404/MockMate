@@ -1,37 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+*MockMate*
 
-## Getting Started
+An interactive web application that helps users prepare for technical interviews by generating realistic, AI-powered mock interviews.
+Users can create personalized interview sessions, get real-time question prompts, and review their performance — all in a clean, modern interface.
 
-First, run the development server:
+🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🔐 User Authentication:
+Secure login and registration with Firebase Authentication and session cookies.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🧩 Personalized Interview Creation:
+Users can create interviews based on their preferred role, tech stack, and difficulty level.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🤖 AI Interview Agent:
+Real-time question generation and interactive conversation using an intelligent AI model.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🗂️ Dashboard Overview:
+View all past interviews, filter by tech or type, and track your preparation history.
 
-## Learn More
+🎨 Modern UI/UX:
+Fully responsive design built with Tailwind CSS, shadcn/ui, and Lucide Icons for a sleek, professional look.
 
-To learn more about Next.js, take a look at the following resources:
+⚡ Optimized Server Actions (Next.js 14):
+Uses Next.js Server Actions and App Router for efficient, serverless data handling.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🛠️ Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+-> Frontend Framework:	Next.js 14+ (App Router)
 
-## Deploy on Vercel
+-> UI Styling:	Tailwind CSS, shadcn/ui, Lucide Icons
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+-> Backend & Auth:	Firebase Admin SDK, Firestore Database
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
----test
+-> AI & Logic:	Custom AI agent powered by OpenAI API (or similar integration)
+
+-> TypeScript:	Full TypeScript support for safe, typed code
+
+-> State & Hooks: React hooks (useState, useEffect)
+
+-> Routing & Navigation:	Next.js App Router with dynamic routes
+
+-> Image Handling:	Next.js <Image> optimization
+
+-> Session Management:	Secure cookies (Next.js + Firebase Session Cookies)
+
