@@ -17,7 +17,7 @@ import {
   getFeedbackByInterviewId,
   getInterviewById,
 } from "@/lib/actions/general.action";
-import { auth } from "@/lib/actions/auth.action";
+import { auth }  from "@/lib/actions/auth.action";
 
 interface PageProps {
   params: { id: string };

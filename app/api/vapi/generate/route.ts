@@ -1,5 +1,5 @@
 import { db } from "@/firebase/admin";
-import { getRandomInterviewCover } from "@/lib/utils";
+import { getInterviewCover } from "@/lib/utils";
 
 export async function POST(request: Request) {
   const { type, role, level, techstack, amount, userid } = await request.json();
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       questions: parsedQuestions,
       userId: userid,
       finalized: true,
-      coverImage: getRandomInterviewCover(),
+      coverImage: getInterviewCover(userid),
       createdAt: new Date().toISOString(),
     };
 

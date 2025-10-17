@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import DisplayTechicons from './DisplayTechicons';
 
 import { getInterviewCover } from '@/lib/utils'
-import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
+//import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
 type Feedback = {
   createdAt: string | number | Date;

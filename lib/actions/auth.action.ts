@@ -11,6 +11,7 @@ import type { SignUpParams, SignInParams, User, Interview, GetLatestInterviewsPa
 const SESSION_DURATION = 60 * 60 * 24 * 7;
 
 
+
 export async function setSessionCookie(idToken: string) {
   const cookieStore = await cookies();
 
@@ -192,4 +193,3 @@ export async function getInterviewById(id: string): Promise<Interview | null> {
     ...doc.data(),
   } as Interview;
 }
-
