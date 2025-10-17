@@ -1,5 +1,5 @@
-/* import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
-import { z } from "zod";*/
+import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
+import { z } from "zod";
 
 export const mappings = {
   "react.js": "react",
@@ -97,7 +97,7 @@ export const mappings = {
   "aws amplify": "amplify",
 };
 
-/*export const interviewer: CreateAssistantDTO = {
+export const interviewer: CreateAssistantDTO = {
   name: "Interviewer",
   firstMessage:
     "Hello! Thank you for taking the time to speak with me today. I'm excited to learn more about you and your experience.",
@@ -155,40 +155,42 @@ End the conversation on a polite and positive note.
   },
 };
 
-export const feedbackSchema = z.object({
-  totalScore: z.number(),
-  categoryScores: z.tuple([
-    z.object({
-      name: z.literal("Communication Skills"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Technical Knowledge"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Problem Solving"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Cultural Fit"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Confidence and Clarity"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-  ]),
-  strengths: z.array(z.string()),
-  areasForImprovement: z.array(z.string()),
-  finalAssessment: z.string(),
-});
-*/
+export const feedbackSchema = {
+  type: "object",
+  properties: {
+    totalScore: { type: "number" },
+    categoryScores: {
+      type: "object",
+      properties: {
+        "Communication Skills": { type: "number" },
+        "Technical Knowledge": { type: "number" },
+        "Problem-Solving": { type: "number" },
+        "Cultural & Role Fit": { type: "number" },
+        "Confidence & Clarity": { type: "number" }
+      },
+      additionalProperties: false
+    },
+    strengths: {
+      type: "array",
+      items: { type: "string" }
+    },
+    areasForImprovement: {
+      type: "array",
+      items: { type: "string" }
+    },
+    finalAssessment: { type: "string" }
+  },
+  required: [
+    "totalScore",
+    "categoryScores",
+    "strengths",
+    "areasForImprovement",
+    "finalAssessment"
+  ],
+  additionalProperties: false
+};
+
+
 export const interviewCovers = [
   "/adobe.png",
   "/amazon.png",

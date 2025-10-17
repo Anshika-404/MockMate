@@ -1,5 +1,7 @@
 import PageClient from "@/components/PageClient";
-import { getCurrentUser, getInterviewsByUserId, getLatestInterviews } from "@/lib/actions/auth.action";
+import { Header } from "@/components/Header";
+import { getCurrentUser} from "@/lib/actions/auth.action"
+import{ getInterviewsByUserId, getLatestInterviews } from "@/lib/actions/general.action";
 
 export default async function Page() {
   const user = await getCurrentUser();
@@ -10,10 +12,12 @@ export default async function Page() {
   ]);
 
   return (
+    <>
     <PageClient
       user={user}
       userInterviews={userInterviews}
       latestInterviews={latestInterviews}
     />
+    </>
   );
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 import DisplayTechicons from './DisplayTechicons';
 
-import { getRandomInterviewCover } from '@/lib/utils'
+import { getInterviewCover } from '@/lib/utils'
 import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
 type Feedback = {
@@ -14,7 +14,7 @@ type Feedback = {
 };
 
 type InterviewCardprops = {
-  interviewId: string;
+  id: string;
   userid: string;
   role: string;
   type: string;
@@ -22,11 +22,7 @@ type InterviewCardprops = {
   createdAt: string | number | Date;
 };
 
-
-
-
-
-const InterviewCard = ({ interviewId, userid, role, type,
+const InterviewCard = ({ id, userid, role, type,
      techstack, createdAt }: InterviewCardprops) => {
         const feedback = null as Feedback | null;
         const normalizedType = /mix/gi.test(type) ? 'Mixed' : type;
@@ -41,8 +37,8 @@ const InterviewCard = ({ interviewId, userid, role, type,
                 <div className="absolute top-0 right-0 w-fit px-4 py-2 rounded-bl-lg bg-light-600">
                     <p className="badge-text">{normalizedType}</p>
                 </div>
-                <Image src={getRandomInterviewCover()} alt="cover image" width={90} height={90}
-                 className="rounded-full object-fit size-[90px]" />
+                <Image src={getInterviewCover(id)} alt="cover image" width={90} height={90} />
+
 
                 <h3 className="mt-5 capitalize">
                     {role} Interview
@@ -73,8 +69,8 @@ const InterviewCard = ({ interviewId, userid, role, type,
                 
                 <Button className="btn-primary">
                     <Link href={feedback ?
-                        '/interview/${intrvieewId}/feedback'
-                        : '?interview/${interviewId}'
+                        '/interview/${id}/feedback'
+                        : '/interview/${id}'
                     }>
                         {feedback ?'Check feedback' : 'View'}
                     </Link>

@@ -18,25 +18,28 @@ export async function createFeedback(params: CreateFeedbackParams) {
       .join("");
 
     const { object } = await generateObject({
-      model: google("gemini-2.0-flash-001", {
-        structuredOutputs: false,
-      }),
-      schema: feedbackSchema,
-      prompt: `
-        You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
-        Transcript:
-        ${formattedTranscript}
+  model: google("gemini-2.0-flash-001"),
+  prompt: `
+    You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
+    Transcript:
+    ${formattedTranscript}
 
-        Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
-        - **Communication Skills**: Clarity, articulation, structured responses.
-        - **Technical Knowledge**: Understanding of key concepts for the role.
-        - **Problem-Solving**: Ability to analyze problems and propose solutions.
-        - **Cultural & Role Fit**: Alignment with company values and job role.
-        - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
-        `,
-      system:
-        "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
-    });
+    Please return the feedback strictly in the following JSON format:
+    {
+      "totalScore": <number>,
+      "categoryScores": {
+        "Communication Skills": <number>,
+        "Technical Knowledge": <number>,
+        "Problem-Solving": <number>,
+        "Cultural & Role Fit": <number>,
+        "Confidence & Clarity": <number>
+      },
+      "strengths": [<string>, ...],
+      "areasForImprovement": [<string>, ...],
+      "finalAssessment": <string>
+    }
+  `
+});
 
     const feedback = {
       interviewId: interviewId,
@@ -59,7 +62,13 @@ export async function createFeedback(params: CreateFeedbackParams) {
 
     await feedbackRef.set(feedback);
 
-    return { success: true, feedbackId: feedbackRef.id };
+// 🔗 update interview doc with the generated feedbackId
+await db.collection("interviews").doc(interviewId).update({
+  feedbackId: feedbackRef.id,
+});
+
+return { success: true, feedbackId: feedbackRef.id };
+
   } catch (error) {
     console.error("Error saving feedback:", error);
     return { success: false };
@@ -67,10 +76,20 @@ export async function createFeedback(params: CreateFeedbackParams) {
 }
 
 export async function getInterviewById(id: string): Promise<Interview | null> {
-  const interview = await db.collection("interviews").doc(id).get();
+  const doc = await db.collection("interviews").doc(id).get();
+  if (!doc.exists) return null;
 
-  return interview.data() as Interview | null;
+  const data = doc.data();
+
+  return {
+    id: doc.id,
+    ...data,
+    createdAt: data?.createdAt?.toDate
+      ? data.createdAt.toDate().toISOString()
+      : new Date().toISOString()
+  } as Interview;
 }
+
 
 export async function getFeedbackByInterviewId(
   params: GetFeedbackByInterviewIdParams
@@ -103,10 +122,16 @@ export async function getLatestInterviews(
     .limit(limit)
     .get();
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+  return interviews.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data?.createdAt?.toDate
+        ? data.createdAt.toDate().toISOString()
+        : new Date().toISOString(),
+    };
+  }) as Interview[];
 }
 
 export async function getInterviewsByUserId(
@@ -118,8 +143,14 @@ export async function getInterviewsByUserId(
     .orderBy("createdAt", "desc")
     .get();
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+  return interviews.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data?.createdAt?.toDate
+        ? data.createdAt.toDate().toISOString()
+        : new Date().toISOString(),
+    };
+  }) as Interview[];
 }

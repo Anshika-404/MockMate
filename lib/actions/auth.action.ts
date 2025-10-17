@@ -2,6 +2,7 @@
 
 import { auth, db } from "@/firebase/admin";
 import { cookies } from "next/headers";
+import admin from "firebase-admin";
 
 // Add missing type imports or definitions
 import type { SignUpParams, SignInParams, User, Interview, GetLatestInterviewsParams } from "@/types/index";
@@ -148,16 +149,18 @@ export async function getInterviewsByUserId(userId: string): Promise<Interview[]
   })) as Interview[];
 }
 
-export async function getLatestInterviews(params: GetLatestInterviewsParams): Promise<Interview[] | null> {
+export async function getLatestInterviews(
+  params: GetLatestInterviewsParams
+): Promise<Interview[] | null> {
   const { userId, limit = 20 } = params;
 
   let query = db
     .collection("interviews")
-    .orderBy('createdAt', 'desc')
-    .where('finalized', '==', true);
+    .where("finalized", "==", true)
+    .orderBy("createdAt", "desc");
 
   if (userId) {
-    query = query.where('userId', '==', userId);
+    query = query.where("userId", "==", userId);
   }
 
   const interviewsSnapshot = await query.limit(limit).get();
@@ -166,7 +169,7 @@ export async function getLatestInterviews(params: GetLatestInterviewsParams): Pr
 
   return interviewsSnapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   })) as Interview[];
 }
 
@@ -175,9 +178,18 @@ export async function createInterview(
 ) {
   const docRef = await db.collection("interviews").add({
     ...interview,
-    createdAt: new Date().toISOString(), 
+    createdAt: admin.firestore.Timestamp.now(),
   });
 
   return docRef.id;
+}
+export async function getInterviewById(id: string): Promise<Interview | null> {
+  const doc = await db.collection("interviews").doc(id).get();
+  if (!doc.exists) return null;
+
+  return {
+    id: doc.id,
+    ...doc.data(),
+  } as Interview;
 }
 
