@@ -42,6 +42,7 @@ export async function setSessionCookie(idToken: string) {
 
   const sessionCookie = await firebaseAuth.createSessionCookie(idToken, {
     expiresIn: SESSION_DURATION * 1000, // milliseconds
+
   });
 
   
