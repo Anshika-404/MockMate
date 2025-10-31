@@ -12,6 +12,7 @@ interface FormFieldProps<T extends FieldValues> {
   label: string;
   placeholder?: string;
   type?: 'text' | 'email' | 'password' | 'file';
+  autoComplete?: string;
 }
 
 function FormField<T extends FieldValues>({
@@ -19,7 +20,8 @@ function FormField<T extends FieldValues>({
   name,
   label,
   placeholder,
-  type = "text"
+  type = "text",
+  autoComplete
 }: FormFieldProps<T>) {
   return (
     <Controller
@@ -33,6 +35,7 @@ function FormField<T extends FieldValues>({
             className="input"
             type={type} 
             placeholder={placeholder} 
+            autoComplete={autoComplete}
             {...field} 
             />
           </FormControl>

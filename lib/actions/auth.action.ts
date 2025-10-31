@@ -12,7 +12,7 @@ import type { SignUpParams, SignInParams, User, Interview, GetLatestInterviewsPa
 const SESSION_DURATION = 60 * 60 * 24 * 7;
 
 
-export async function auth(): Promise<User | null> {
+export async function getUserSession(): Promise<User | null> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session")?.value;
 
@@ -100,7 +100,7 @@ export async function signIn(params: SignInParams) {
   const { email, idToken } = params;
 
   try {
-    const userRecord = await auth.getUserByEmail(email);
+    const userRecord = await firebaseAuth.getUserByEmail(email);
     if (!userRecord)
       return {
         success: false,
@@ -133,7 +133,7 @@ export async function getCurrentUser(): Promise<User | null> {
   if (!sessionCookie) return null;
 
   try {
-    const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    const decodedClaims = await firebaseAuth.verifySessionCookie(sessionCookie, true);
 
     // get user info from db
     const userRecord = await db
