@@ -17,7 +17,7 @@ import {
   getFeedbackByInterviewId,
   getInterviewById,
 } from "@/lib/actions/general.action";
-import { auth }  from "@/lib/actions/auth.action";
+import { getUserSession }  from "@/lib/actions/auth.action";
 
 interface PageProps {
   params: { id: string };
@@ -54,7 +54,7 @@ export default async function FeedbackPage({ params }: PageProps) {
   const { id: interviewId } = params;
 
   // ✅ FIX 2: `auth()` gives user object (handle missing gracefully)
-  const user = await auth();
+  const user = await getUserSession();
   if (!user || !user.userId) redirect("/sign-in");
 
   const userId = user.userId;
