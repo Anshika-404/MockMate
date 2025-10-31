@@ -43,3 +43,48 @@ Uses Next.js Server Actions and App Router for efficient, serverless data handli
 
 -> Session Management:	Secure cookies (Next.js + Firebase Session Cookies)
 
+
+
+
+🧱 Installation & Setup
+1. Clone the Repository
+git clone https://github.com/Anshika-404/MockMate.git
+cd ai-interview-platform
+
+2. Install Dependencies
+npm install
+# or
+yarn install
+
+3. Setup Environment
+
+Add your Firebase and OpenAI credentials in .env.local.
+
+4. Run Development Server
+npm run dev
+# or
+yarn dev
+
+5. Build for Production
+npm run build
+npm start
+
+🧠 Future Improvements:
+
+📊 Performance analytics dashboard
+
+🌐 Multi-language question generation
+
+💾 Export interview reports as PDF
+
+🔔 Notification & scheduling system
+
+💻 Author
+
+Anshika Verma 
+
+📍 Engineering Student 
+
+📧 Contact: anshikaverma.311@gmail.com
+
+Visit : mock-mate-azvehxizy-anshikaverma311-4646s-projects.vercel.app
